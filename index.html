@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUI-L – KI-Unterricht Inventar für Lehrkräfte</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-50: #E6F1FB; --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C;
+    --teal-50: #E1F5EE; --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-400: #BA7517; --amber-600: #854F0B; --amber-800: #633806;
+    --coral-50: #FAECE7; --coral-400: #D85A30; --coral-600: #993C1D; --coral-800: #712B13;
+    --purple-50: #EEEDFE; --purple-400: #7F77DD; --purple-600: #534AB7; --purple-800: #3C3489;
+    --gray-100: #F4F3F0; --gray-200: #E8E7E2; --gray-400: #888780; --gray-600: #5F5E5A; --gray-800: #2C2C2A;
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --text: #1A1A18;
+    --text-muted: #6B6B67;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --font: 'Georgia', 'Times New Roman', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border-strong);
+    padding: 28px 0 24px;
+    text-align: center;
+  }
+
+  .page-header .kuerzel {
+    display: inline-block;
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .page-header h1 {
+    font-family: var(--font);
+    font-size: 28px;
+    font-weight: normal;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .badge-blue   { background: var(--blue-50);   color: var(--blue-800); }
+  .badge-teal   { background: var(--teal-50);   color: var(--teal-800); }
+  .badge-amber  { background: var(--amber-50);  color: var(--amber-800); }
+  .badge-coral  { background: var(--coral-50);  color: var(--coral-800); }
+  .badge-purple { background: var(--purple-50); color: var(--purple-800); }
+
+  .main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 36px 20px 60px;
+  }
+
+  .progress-bar-wrap {
+    background: var(--gray-200);
+    border-radius: 99px;
+    height: 5px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 5px;
+    border-radius: 99px;
+    background: var(--blue-400);
+    transition: width 0.35s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .section { margin-bottom: 36px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    margin-bottom: 6px;
+  }
+
+  .section-header .num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .section-header .title { font-size: 14px; font-weight: 600; }
+
+  .sh-blue   { background: var(--blue-50);   color: var(--blue-800); }
+  .sh-blue .num { background: var(--blue-400); color: #fff; }
+  .sh-teal   { background: var(--teal-50);   color: var(--teal-800); }
+  .sh-teal .num { background: var(--teal-400); color: #fff; }
+  .sh-amber  { background: var(--amber-50);  color: var(--amber-800); }
+  .sh-amber .num { background: var(--amber-400); color: #fff; }
+  .sh-coral  { background: var(--coral-50);  color: var(--coral-800); }
+  .sh-coral .num { background: var(--coral-400); color: #fff; }
+  .sh-purple { background: var(--purple-50); color: var(--purple-800); }
+  .sh-purple .num { background: var(--purple-400); color: #fff; }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    padding-left: 4px;
+  }
+
+  .item {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+  }
+
+  .item.answered { border-color: var(--border-strong); }
+
+  .item-sub {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .item-q {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+
+  .scale {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .scale-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 62px;
+    line-height: 1.3;
+  }
+
+  .scale-label.right { text-align: right; }
+
+  .scale-opts {
+    display: flex;
+    gap: 5px;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .sbtn {
+    flex: 1;
+    height: 34px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--text-muted);
+    transition: all 0.1s;
+  }
+
+  .sbtn:hover { background: var(--gray-100); }
+
+  .sel-blue   { background: var(--blue-50) !important;   border-color: var(--blue-400) !important;   color: var(--blue-800) !important;   font-weight: 600; }
+  .sel-teal   { background: var(--teal-50) !important;   border-color: var(--teal-400) !important;   color: var(--teal-800) !important;   font-weight: 600; }
+  .sel-amber  { background: var(--amber-50) !important;  border-color: var(--amber-400) !important;  color: var(--amber-800) !important;  font-weight: 600; }
+  .sel-coral  { background: var(--coral-50) !important;  border-color: var(--coral-400) !important;  color: var(--coral-800) !important;  font-weight: 600; }
+  .sel-purple { background: var(--purple-50) !important; border-color: var(--purple-400) !important; color: var(--purple-800) !important; font-weight: 600; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.15s;
+  }
+
+  .submit-btn:hover { opacity: 0.85; }
+
+  .reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: var(--font-sans);
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.12s;
+  }
+
+  .reset-btn:hover { background: var(--gray-100); }
+
+  /* ─── RESULTS ─── */
+  #results { display: none; }
+
+  .results-header {
+    text-align: center;
+    padding: 24px 0 32px;
+  }
+
+  .results-header h2 {
+    font-family: var(--font);
+    font-size: 24px;
+    font-weight: normal;
+    margin-bottom: 6px;
+  }
+
+  .results-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .profile-card {
+    border-radius: var(--radius-md);
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .profile-card .val {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .profile-card .lbl {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .pc-blue   { background: var(--blue-50);   color: var(--blue-800); }
+  .pc-teal   { background: var(--teal-50);   color: var(--teal-800); }
+  .pc-amber  { background: var(--amber-50);  color: var(--amber-800); }
+  .pc-coral  { background: var(--coral-50);  color: var(--coral-800); }
+  .pc-purple { background: var(--purple-50); color: var(--purple-800); }
+
+  .rcard {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+
+  .rcard h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .rrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .rrow:last-child { margin-bottom: 0; }
+
+  .rrow-lbl {
+    font-size: 13px;
+    color: var(--text-muted);
+    min-width: 200px;
+    line-height: 1.3;
+  }
+
+  .track {
+    flex: 1;
+    background: var(--gray-200);
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .fill {
+    height: 8px;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  .rval {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: right;
+  }
+
+  .interp-card {
+    background: var(--gray-100);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 14px;
+    border-left: 3px solid var(--gray-400);
+    border-radius: 0;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    padding-left: 20px;
+    background: none;
+  }
+
+  .interp-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .interp-card p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .interp-card p + p { margin-top: 8px; }
+
+  .flag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .flag-strength { background: var(--teal-50); color: var(--teal-800); }
+  .flag-risk     { background: var(--coral-50); color: var(--coral-800); }
+  .flag-neutral  { background: var(--gray-200); color: var(--gray-800); }
+
+  .action-list {
+    margin-top: 12px;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .action-list li {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 7px 0;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .action-list li::before {
+    content: '→';
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .action-list li:last-child { border-bottom: none; }
+
+  .print-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.15s;
+  }
+
+  .print-btn:hover { opacity: 0.85; }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 24px 20px;
+    border-top: 0.5px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    .scale { flex-wrap: wrap; }
+    .scale-label { min-width: auto; }
+    .rrow { flex-wrap: wrap; }
+    .rrow-lbl { min-width: 100%; }
+    .profile-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media print {
+    body { font-size: 12px; }
+    .submit-btn, .reset-btn, .print-btn { display: none; }
+    .item { break-inside: avoid; }
+    #results { display: block !important; }
+    #form-section { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="kuerzel">KUI-L · Version 1.0 · 2025</div>
+  <h1>KI-Unterricht Inventar<br>für Lehrkräfte</h1>
+  <p>Dieses Inventar erfasst Erfahrungen, Ressourcen und Herausforderungen beim KI-gestützten Unterrichten. Bitte antworten Sie spontan und bezogen auf die letzten 4 Wochen.</p>
+  <div class="badges">
+    <span class="badge badge-blue">KI-Kompetenz</span>
+    <span class="badge badge-teal">Entlastung &amp; Effizienz</span>
+    <span class="badge badge-amber">Ethik &amp; Kontrolle</span>
+    <span class="badge badge-coral">Mehrbelastung &amp; Unsicherheit</span>
+    <span class="badge badge-purple">Unterrichtsqualität</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <section id="form-section">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-fill"></div>
+    </div>
+    <div class="progress-label">
+      <span id="prog-text">0 von 30 Fragen beantwortet</span>
+      <span id="prog-pct">0 %</span>
+    </div>
+    <div id="form-area"></div>
+  </section>
+
+  <section id="results"></section>
+
+</main>
+
+<footer>
+  KUI-L – KI-Unterricht Inventar für Lehrkräfte &nbsp;·&nbsp;
+  Basierend auf dem Job Demands-Resources Modell (Bakker &amp; Demerouti, 2007) &nbsp;&amp;&nbsp; TPACK-Modell (Mishra &amp; Koehler, 2006) &nbsp;·&nbsp;
+  Nur zur Selbstreflexion, kein klinisches Diagnoseinstrument
+</footer>
+
+<script>
+const QUESTIONS = [
+  {id:'k1', cat:'ki',   sub:'KI-Selbstwirksamkeit',        q:'Ich bin zuversichtlich, KI-Tools sinnvoll in meinen Unterricht zu integrieren.'},
+  {id:'k2', cat:'ki',   sub:'KI-Selbstwirksamkeit',        q:'Wenn KI-Tools beim Unterrichten nicht wie erwartet funktionieren, finde ich eigenständig Lösungen.'},
+  {id:'k3', cat:'ki',   sub:'KI-Wissen & Verständnis',     q:'Ich verstehe, wie die von mir genutzten KI-Tools grundsätzlich funktionieren.'},
+  {id:'k4', cat:'ki',   sub:'KI-Wissen & Verständnis',     q:'Ich kann einschätzen, in welchen Situationen der Einsatz von KI pädagogisch sinnvoll ist.'},
+  {id:'k5', cat:'ki',   sub:'KI-Weiterbildung',             q:'Ich habe ausreichend Möglichkeiten, mich zu KI-Anwendungen im Unterricht fortzubilden.'},
+  {id:'k6', cat:'ki',   sub:'KI-Weiterbildung',             q:'Meine Schule unterstützt mich dabei, KI-Kompetenzen gezielt zu entwickeln.'},
+
+  {id:'e1', cat:'entl', sub:'Zeitersparnis Planung',        q:'Die Nutzung von KI-Tools entlastet mich spürbar bei der Vorbereitung von Unterrichtsmaterialien.'},
+  {id:'e2', cat:'entl', sub:'Zeitersparnis Planung',        q:'Durch KI habe ich mehr Zeit für didaktisch anspruchsvolle Aspekte meiner Unterrichtsplanung.'},
+  {id:'e3', cat:'entl', sub:'Differenzierung & Adaptivität',q:'KI hilft mir, Aufgaben und Materialien besser an unterschiedliche Lernniveaus anzupassen.'},
+  {id:'e4', cat:'entl', sub:'Differenzierung & Adaptivität',q:'Mit KI-Unterstützung gelingt es mir leichter, auf individuelle Lernbedürfnisse einzugehen.'},
+  {id:'e5', cat:'entl', sub:'Feedback & Bewertung',         q:'KI-Tools erleichtern mir die Erstellung von differenziertem Feedback für Schülerinnen und Schüler.'},
+  {id:'e6', cat:'entl', sub:'Feedback & Bewertung',         q:'Die Unterstützung durch KI bei Bewertungsaufgaben empfinde ich als qualitätsverbessernd.'},
+
+  {id:'eth1',cat:'eth', sub:'Kontrollverlust & Abhängigkeit',q:'Ich habe manchmal das Gefühl, zu sehr von KI-Vorschlägen abhängig zu sein.'},
+  {id:'eth2',cat:'eth', sub:'Kontrollverlust & Abhängigkeit',q:'Ich prüfe KI-generierte Inhalte stets kritisch, bevor ich sie im Unterricht einsetze.'},
+  {id:'eth3',cat:'eth', sub:'Datenschutz & Sicherheit',      q:'Ich bin unsicher, welche Schülerdaten ich bedenkenlos mit KI-Tools teilen darf.'},
+  {id:'eth4',cat:'eth', sub:'Datenschutz & Sicherheit',      q:'Meine Schule hat klare Regeln zum datenschutzkonformen Einsatz von KI im Unterricht.'},
+  {id:'eth5',cat:'eth', sub:'Fairness & Transparenz',        q:'Ich achte darauf, dass der KI-Einsatz keine Benachteiligungen für einzelne Schülerinnen und Schüler erzeugt.'},
+  {id:'eth6',cat:'eth', sub:'Fairness & Transparenz',        q:'Ich kommuniziere offen gegenüber Schülerinnen und Schülern, wenn KI im Unterricht eingesetzt wird.'},
+
+  {id:'m1', cat:'mehr', sub:'Technischer Mehraufwand',      q:'Die Einarbeitung in neue KI-Tools kostet mich unverhältnismäßig viel Zeit.'},
+  {id:'m2', cat:'mehr', sub:'Technischer Mehraufwand',      q:'Technische Probleme beim Einsatz von KI im Unterricht belasten mich zusätzlich.'},
+  {id:'m3', cat:'mehr', sub:'Rollenunsicherheit',            q:'Ich bin unsicher, wie viel Eigenleistung ich noch einbringen soll, wenn KI viele Aufgaben übernimmt.'},
+  {id:'m4', cat:'mehr', sub:'Rollenunsicherheit',            q:'Der Einsatz von KI verändert mein Selbstverständnis als Lehrkraft in einer Weise, die ich noch nicht vollständig verarbeitet habe.'},
+  {id:'m5', cat:'mehr', sub:'Akzeptanzprobleme',             q:'Ich stoße bei Kolleginnen und Kollegen oder der Schulleitung auf Skepsis gegenüber meinem KI-Einsatz.'},
+  {id:'m6', cat:'mehr', sub:'Akzeptanzprobleme',             q:'Eltern reagieren kritisch, wenn ich KI-Tools im Unterricht einsetze.'},
+
+  {id:'q1', cat:'qual', sub:'Lernmotivation',                q:'Schülerinnen und Schüler sind durch den KI-gestützten Unterricht stärker motiviert.'},
+  {id:'q2', cat:'qual', sub:'Lernmotivation',                q:'Der Einsatz von KI macht meinen Unterricht abwechslungsreicher und interessanter.'},
+  {id:'q3', cat:'qual', sub:'Lerntiefe & kritisches Denken', q:'Ich achte darauf, dass KI-Einsatz nicht das eigenständige Denken der Schülerinnen und Schüler ersetzt.'},
+  {id:'q4', cat:'qual', sub:'Lerntiefe & kritisches Denken', q:'Mein Unterricht fördert explizit die kritische Auseinandersetzung der Schülerinnen und Schüler mit KI-generierten Inhalten.'},
+  {id:'q5', cat:'qual', sub:'Unterrichtsreflexion',          q:'Ich reflektiere regelmäßig, ob der KI-Einsatz tatsächlich zum Lernerfolg beiträgt.'},
+  {id:'q6', cat:'qual', sub:'Unterrichtsreflexion',          q:'Ich passe meinen KI-Einsatz gezielt an, wenn er nicht die erwarteten Ergebnisse bringt.'},
+];
+
+const META = {
+  ki:   { label:'KI-Kompetenz & Selbstwirksamkeit',  cls:'blue',   color:'#378ADD', desc:'Wie schätzen Sie Ihre eigene Kompetenz und Sicherheit im Umgang mit KI-Tools ein?' },
+  entl: { label:'Entlastung & Effizienz',             cls:'teal',   color:'#1D9E75', desc:'Inwieweit entlasten KI-Tools Ihren Unterrichtsalltag tatsächlich?' },
+  eth:  { label:'Ethik, Kontrolle & Datenschutz',    cls:'amber',  color:'#BA7517', desc:'Wie gehen Sie mit ethischen Fragen und Ihrer Kontrolle über KI um?' },
+  mehr: { label:'Mehrbelastung & Unsicherheit',       cls:'coral',  color:'#D85A30', desc:'Welche Mehrbelastungen entstehen durch den KI-Einsatz?' },
+  qual: { label:'Unterrichtsqualität & Reflexion',   cls:'purple', color:'#7F77DD', desc:'Wie wirkt sich KI auf die Qualität Ihres Unterrichts aus?' },
+};
+
+const CAT_ORDER = ['ki','entl','eth','mehr','qual'];
+
+const SUB_SCALES = {
+  ki:   [{l:'KI-Selbstwirksamkeit',        ids:['k1','k2']},{l:'KI-Wissen & Verständnis',ids:['k3','k4']},{l:'KI-Weiterbildung',ids:['k5','k6']}],
+  entl: [{l:'Zeitersparnis Planung',        ids:['e1','e2']},{l:'Differenzierung & Adaptivität',ids:['e3','e4']},{l:'Feedback & Bewertung',ids:['e5','e6']}],
+  eth:  [{l:'Kontrollverlust & Abhängigkeit',ids:['eth1','eth2']},{l:'Datenschutz & Sicherheit',ids:['eth3','eth4']},{l:'Fairness & Transparenz',ids:['eth5','eth6']}],
+  mehr: [{l:'Technischer Mehraufwand',      ids:['m1','m2']},{l:'Rollenunsicherheit',ids:['m3','m4']},{l:'Akzeptanzprobleme',ids:['m5','m6']}],
+  qual: [{l:'Lernmotivation',               ids:['q1','q2']},{l:'Lerntiefe & kritisches Denken',ids:['q3','q4']},{l:'Unterrichtsreflexion',ids:['q5','q6']}],
+};
+
+const answers = {};
+
+function updateProgress() {
+  const n = Object.keys(answers).length;
+  const pct = Math.round(n / QUESTIONS.length * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = n + ' von ' + QUESTIONS.length + ' Fragen beantwortet';
+  document.getElementById('prog-pct').textContent = pct + ' %';
+}
+
+function avg(ids) {
+  const vals = ids.map(id => answers[id]).filter(v => v !== undefined);
+  return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+}
+
+function buildForm() {
+  const area = document.getElementById('form-area');
+  const grouped = {};
+  for (const q of QUESTIONS) {
+    if (!grouped[q.cat]) grouped[q.cat] = [];
+    grouped[q.cat].push(q);
+  }
+
+  CAT_ORDER.forEach((cat, idx) => {
+    const m = META[cat];
+    const sec = document.createElement('div');
+    sec.className = 'section';
+
+    const hd = document.createElement('div');
+    hd.className = `section-header sh-${m.cls}`;
+    hd.innerHTML = `<div class="num">${idx+1}</div><div class="title">${m.label}</div>`;
+    sec.appendChild(hd);
+
+    const desc = document.createElement('p');
+    desc.className = 'section-desc';
+    desc.textContent = m.desc;
+    sec.appendChild(desc);
+
+    for (const q of grouped[cat]) {
+      const item = document.createElement('div');
+      item.className = 'item';
+      item.id = 'item-' + q.id;
+
+      item.innerHTML = `
+        <div class="item-sub">${q.sub}</div>
+        <div class="item-q">${q.q}</div>
+        <div class="scale">
+          <span class="scale-label">Trifft gar<br>nicht zu</span>
+          <div class="scale-opts" id="opts-${q.id}"></div>
+          <span class="scale-label right">Trifft voll<br>zu</span>
+        </div>`;
+
+      const opts = item.querySelector(`#opts-${q.id}`);
+      for (let v = 1; v <= 5; v++) {
+        const btn = document.createElement('button');
+        btn.className = 'sbtn';
+        btn.textContent = v;
+        btn.setAttribute('aria-label', `${v} von 5`);
+        btn.onclick = () => {
+          answers[q.id] = v;
+          opts.querySelectorAll('.sbtn').forEach(b => b.className = 'sbtn');
+          btn.className = `sbtn sel-${m.cls}`;
+          document.getElementById('item-' + q.id).classList.add('answered');
+          updateProgress();
+        };
+        opts.appendChild(btn);
+      }
+      sec.appendChild(item);
+    }
+    area.appendChild(sec);
+  });
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'submit-btn';
+  submitBtn.textContent = 'Auswertung anzeigen →';
+  submitBtn.onclick = showResults;
+  area.appendChild(submitBtn);
+}
+
+function flagHtml(score, isNegativeDim) {
+  if (isNegativeDim) {
+    if (score >= 3.5) return '<span class="flag flag-risk">Handlungsbedarf</span>';
+    if (score >= 2.5) return '<span class="flag flag-neutral">Mittlerer Bereich</span>';
+    return '<span class="flag flag-strength">Günstig</span>';
+  } else {
+    if (score >= 4) return '<span class="flag flag-strength">Stärke</span>';
+    if (score >= 2.8) return '<span class="flag flag-neutral">Mittlerer Bereich</span>';
+    return '<span class="flag flag-risk">Entwicklungsfeld</span>';
+  }
+}
+
+function showResults() {
+  const missing = QUESTIONS.length - Object.keys(answers).length;
+  if (missing > 0) {
+    alert(`Bitte beantworten Sie noch ${missing} Frage(n), um die Auswertung zu erhalten.`);
+    return;
+  }
+
+  document.getElementById('form-section').style.display = 'none';
+  const res = document.getElementById('results');
+  res.style.display = 'block';
+
+  const scores = {};
+  for (const cat of CAT_ORDER) {
+    scores[cat] = avg(QUESTIONS.filter(q => q.cat === cat).map(q => q.id));
+  }
+
+  const negativeDims = { eth: false, mehr: true };
+
+  let html = `
+    <div class="results-header">
+      <h2>Ihre Auswertung</h2>
+      <p>Skala: 1 = trifft gar nicht zu &nbsp;·&nbsp; 5 = trifft voll zu</p>
+    </div>
+
+    <div class="profile-grid">`;
+
+  for (const cat of CAT_ORDER) {
+    const m = META[cat];
+    const v = scores[cat];
+    html += `<div class="profile-card pc-${m.cls}">
+      <div class="val">${v ? v.toFixed(1) : '–'}</div>
+      <div class="lbl">${m.label}</div>
+    </div>`;
+  }
+
+  html += `</div>`;
+
+  for (const cat of CAT_ORDER) {
+    const m = META[cat];
+    const isNeg = !!negativeDims[cat];
+    const v = scores[cat];
+    html += `<div class="rcard">
+      <h3 style="color:${m.color}">${m.label} &nbsp; ${flagHtml(v, isNeg)}</h3>`;
+    for (const ss of SUB_SCALES[cat]) {
+      const sv = avg(ss.ids);
+      const pct = sv ? ((sv - 1) / 4 * 100).toFixed(0) : 0;
+      html += `<div class="rrow">
+        <span class="rrow-lbl">${ss.l}</span>
+        <div class="track"><div class="fill" style="background:${m.color}" data-target="${pct}"></div></div>
+        <span class="rval" style="color:${m.color}">${sv ? sv.toFixed(1) : '–'}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  const ki = scores.ki, entl = scores.entl, eth = scores.eth, mehr = scores.mehr, qual = scores.qual;
+
+  let strengths = [], risks = [], actions = [];
+
+  if (ki >= 4)   { strengths.push('Hohe KI-Selbstwirksamkeit – solide Basis für reflektierten Einsatz'); }
+  else if (ki < 2.8) { risks.push('Geringes KI-Kompetenzerleben'); actions.push('Gezielte Fortbildungsangebote zu KI-Tools suchen oder kollegiale Hospitationen nutzen'); }
+
+  if (entl >= 4) { strengths.push('KI entlastet Sie spürbar – der Freiraum kann für didaktische Qualität genutzt werden'); }
+  else if (entl < 2.8) { risks.push('Die erhoffte Entlastung durch KI tritt noch nicht ein'); actions.push('Toolauswahl und Workflows überprüfen: Welche KI-Tools passen wirklich zu Ihren Planungsroutinen?'); }
+
+  if (mehr >= 3.5) { risks.push('Merkliche Mehrbelastung und/oder Rollenunsicherheit'); actions.push('Strukturelle Unterstützung einfordern: Klare Schulkonzepte, Zeitbudgets und kollegialer Austausch'); }
+  else if (mehr < 2.5) { strengths.push('Geringe Mehrbelastung durch den KI-Einsatz'); }
+
+  if (eth < 2.8) { risks.push('Ethische Fragen (Datenschutz, Kontrolle, Fairness) sind noch nicht ausreichend geklärt'); actions.push('Institutionelle Leitlinien zum KI-Einsatz einfordern oder gemeinsam im Kollegium erarbeiten'); }
+  if (eth >= 4)  { strengths.push('Ethische Reflexion ist gut verankert'); }
+
+  if (qual >= 4) { strengths.push('Unterrichtsqualität und kritische Reflexion sind durch KI-Einsatz gut gestärkt'); }
+  else if (qual < 2.8) { risks.push('Auswirkungen auf Unterrichtsqualität noch unklar'); actions.push('Regelmäßige Schüler-Feedbacks zum KI-gestützten Unterricht einholen und systematisch auswerten'); }
+
+  if (actions.length === 0) actions.push('Das Profil zeigt eine ausgewogene Situation. Beobachten Sie, welche Dimensionen sich über die Zeit verschieben.');
+
+  let interpHtml = `<div class="interp-card">
+    <h3>Interpretation & Impulse</h3>`;
+
+  if (strengths.length) {
+    interpHtml += `<p><strong>Stärken:</strong> ${strengths.join('; ')}.</p>`;
+  }
+  if (risks.length) {
+    interpHtml += `<p><strong>Entwicklungsfelder:</strong> ${risks.join('; ')}.</p>`;
+  }
+  interpHtml += `<ul class="action-list">`;
+  for (const a of actions) interpHtml += `<li>${a}</li>`;
+  interpHtml += `</ul></div>`;
+
+  html += interpHtml;
+
+  html += `
+    <button class="print-btn" onclick="window.print()">Auswertung drucken / als PDF speichern</button>
+    <button class="reset-btn" onclick="location.reload()">Fragebogen zurücksetzen</button>
+  `;
+
+  res.innerHTML = html;
+
+  setTimeout(() => {
+    document.querySelectorAll('.fill[data-target]').forEach(el => {
+      el.style.width = el.dataset.target + '%';
+    });
+  }, 100);
+
+  res.scrollIntoView({ behavior: 'smooth' });
+}
+
+buildForm();
+updateProgress();
+</script>
+</body>
+</html>
